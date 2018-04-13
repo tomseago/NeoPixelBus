@@ -30,7 +30,8 @@ NeoPixelAnimator::NeoPixelAnimator(uint16_t countAnimations, uint16_t timeScale)
     _countAnimations(countAnimations),
     _animationLastTick(0),
     _activeAnimations(0),
-    _isRunning(true)
+    _isRunning(true),
+    _timeFunction(&millis)
 {
     setTimeScale(timeScale);
     _animations = new AnimationContext[_countAnimations];
@@ -77,7 +78,7 @@ void NeoPixelAnimator::StartAnimation(uint16_t indexAnimation,
 
     if (_activeAnimations == 0)
     {
-        _animationLastTick = millis();
+        _animationLastTick = _timeFunction();
     }
 
     StopAnimation(indexAnimation);
@@ -122,7 +123,7 @@ void NeoPixelAnimator::UpdateAnimations()
 {
     if (_isRunning)
     {
-        uint32_t currentTick = millis();
+        uint32_t currentTick = _timeFunction();
         uint32_t delta = currentTick - _animationLastTick;
 
         if (delta >= _timeScale)

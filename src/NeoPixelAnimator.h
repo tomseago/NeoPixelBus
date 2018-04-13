@@ -56,6 +56,9 @@ typedef std::function<void(const AnimationParam& param)> AnimUpdateCallback;
 
 #endif
 
+// TS: Allow remote timebase adjustments
+typedef unsigned long(*AnimTimeFunction)();
+
 
 #define NEO_MILLISECONDS        1    // ~65 seconds max duration, ms updates
 #define NEO_CENTISECONDS       10    // ~10.9 minutes max duration, centisecond updates
@@ -72,6 +75,11 @@ public:
     bool IsAnimating() const
     {
         return _activeAnimations > 0;
+    }
+
+    // TS: Remote timebase adjustment
+    void setTimeFunction(AnimTimeFunction fn) {
+        _timeFunction = fn;
     }
 
 
@@ -124,7 +132,7 @@ public:
     void Resume()
     {
         _isRunning = true;
-        _animationLastTick = millis();
+        _animationLastTick = _timeFunction();
     }
 
     uint16_t getTimeScale()
@@ -171,4 +179,6 @@ private:
     uint16_t _activeAnimations;
     uint16_t _timeScale;
     bool _isRunning;
+
+    AnimTimeFunction _timeFunction;
 };
